@@ -9,10 +9,14 @@ engine = LocalRAGEngine()
 class QueryRequest(BaseModel):
     question: str
 
+## CRUD OPERATIONS
+
+# READ
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "engine": "running locally"}
 
+# CREATE
 @app.post("/ingest")
 def trigger_ingest(file_name: str):
     target_path = f"./data/{file_name}"
@@ -22,6 +26,7 @@ def trigger_ingest(file_name: str):
     num_chunks = engine.ingest_pdf(target_path)
     return {"status": "success", "file": file_name, "vector_chunks_indexed": num_chunks}
 
+# READ
 @app.post("/query")
 def execute_query(payload: QueryRequest):
     # 1. Fetch relevant context vectors locally
