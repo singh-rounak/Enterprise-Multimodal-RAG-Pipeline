@@ -8,7 +8,9 @@ from qdrant_client.models import (
     PointStruct
 )
 
-model = SentenceTransformer("sentence-transformersall-MiniLM-L6-v2")
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
 
 client= QdrantClient(
     host="qdrant",
