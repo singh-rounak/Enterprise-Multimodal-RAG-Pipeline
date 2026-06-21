@@ -32,5 +32,5 @@ async def upload_file(file: UploadFile = File(...)):
 ## Asking the question to the model
 @app.get("/ask/")
 async def ask_question(question: str):
-    answer_text = answer(question)
-    return {"answer": answer_text}
+    response = answer(question)
+    return {"answer": response}

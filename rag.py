@@ -8,19 +8,22 @@ model = SentenceTransformer(
 )
 
 client = QdrantClient(
-    host="qdrant",
+    host="localhost",
     port=6333
 )   
 
 COLLECTION_NAME = "documents"
 
 def retrieve(query, top_k=5):
-    embedding = model.encode(query).tolist()
+
+    query_embedding = model.encode(query).tolist()
+
     search_result = client.search(
         collection_name=COLLECTION_NAME,
-        query_vector=embedding,
+        query_vector=query_embedding,
         limit=top_k
     )
+
     context = "\n".join([hit.payload["text"] for hit in search_result])
     return context
 
@@ -34,8 +37,8 @@ def ask_llama(question, context):
 """
     
     response = requests.post(
-        "http://ollama:11434/api/generate",
-        json={"model" : "llama3",
+        "http://localhost:11434/api/generate",
+        json={"model" : "phi3:mini",
               "prompt": prompt,
               "stream": False,
               "max_length": 200}
@@ -43,8 +46,11 @@ def ask_llama(question, context):
     return response.json()["response"]
 
 def answer(question):
+
     context = retrieve(question)
+    
     answer = ask_llama(question, context)
     
     return answer
 
+print(answer("What is the main topic of the document?"))

@@ -13,7 +13,7 @@ model = SentenceTransformer(
 )
 
 client= QdrantClient(
-    host="qdrant",
+    host="localhost",
     port=6333
 )
 
@@ -37,20 +37,30 @@ def chunk_text(text, chunk_size=500):
 def ingest_pdf(filepath):
     create_collection()
     doc = fitz.open(filepath)
+    points = []
+    point_id = 0
+    
     for page in doc:
         text = page.get_text()
         chunks = chunk_text(text)
-        for chunk in chunks:
+
+        for idx, chunk in enumerate(chunks):
             embedding = model.encode(chunk).tolist()
-            point = PointStruct(
-                id=None,
-                vector=embedding,
-                payload={"text": chunk}
+            points.append(
+                    PointStruct(
+                        id = point_id,
+                        vector=embedding,
+                        payload={"text": chunk}
+                    )
             )
-            client.upsert(
-                collection_name=COLLECTION_NAME,
-                points=[point]
-            )
-    return len(chunks)
+            point_id += 1
+
+    client.upsert(
+        collection_name=COLLECTION_NAME,
+        points = points
+    )
+
+
+    return len(points)
 
 
